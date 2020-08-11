@@ -10,6 +10,17 @@
                 "semi": true,
                 "tabWidth": 4
             }
+        },
+        {
+            "files": "*.tsx",
+            "options": {
+                "bracketSpacing": true,
+                "jsxBracketSameLine": false,
+                "jsxSingleQuote": true,
+                "singleQuote": true,
+                "semi": true,
+                "tabWidth": 4
+            }
         }
     ]
 }
