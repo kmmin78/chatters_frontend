@@ -1,0 +1,15 @@
+{
+    "overrides": [
+        {
+            "files": "*.js",
+            "options": {
+                "bracketSpacing": true,
+                "jsxBracketSameLine": false,
+                "jsxSingleQuote": true,
+                "singleQuote": true,
+                "semi": true,
+                "tabWidth": 4
+            }
+        }
+    ]
+}
