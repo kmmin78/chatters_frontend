@@ -5,7 +5,7 @@ import {
     Route,
     Redirect,
 } from 'react-router-dom';
-import { Login } from './components/pages';
+import { Login, Profile } from 'components/pages';
 
 function App<T>(props: T) {
     return (
@@ -13,6 +13,7 @@ function App<T>(props: T) {
             <Router>
                 <Switch>
                     <Route exact path={['/']} component={Login}></Route>
+                    <Route path='/profile' component={Profile} />
                     <Redirect path='*' to='/' />
                 </Switch>
             </Router>

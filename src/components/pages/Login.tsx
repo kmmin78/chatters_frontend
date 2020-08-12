@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -14,6 +14,11 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { useSpring, useSprings, animated } from 'react-spring';
+import * as CommonUtil from 'utils/common';
+import * as Constants from 'constants/constants';
+import authHeader from 'auth/authHeader';
+import AuthService from 'auth/authService';
+import axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -49,8 +54,62 @@ function Title() {
     );
 }
 
-function Form() {
+function Form(props: any) {
+    const userId = useRef<HTMLInputElement>(null);
+    const userPassword = useRef<HTMLInputElement>(null);
     const classes = useStyles();
+    //로그인
+    const loginProcess = () => {
+        if (userId.current !== null && userPassword.current !== null) {
+            if (CommonUtil.isEmpty(userId.current.value)) {
+                alert('아이디를 입력해 주세요.');
+                return;
+            }
+            if (CommonUtil.isEmpty(userPassword.current.value)) {
+                alert('비밀번호를 입력해 주세요.');
+                return;
+            }
+
+            // alert(`아이디 : ${userId.current.value}`);
+            // alert(`비밀번호 : ${userPassword.current.value}`);
+
+            AuthService.login(
+                userId.current.value,
+                userPassword.current.value
+            ).then(
+                (data) => {
+                    //axios default 세팅
+                    const authorization = authHeader().Authorization;
+                    axios.defaults.baseURL = Constants.API_URL;
+                    axios.defaults.headers.common[
+                        'Authorization'
+                    ] = authorization;
+                    props.history.push('/profile');
+                    console.dir(data);
+                },
+                (error) => {
+                    const resMessage =
+                        (error.response &&
+                            error.response.data &&
+                            error.response.data.message) ||
+                        error.message ||
+                        error.toString();
+                    if (
+                        error.response &&
+                        error.response.status &&
+                        error.response.status === 401
+                    ) {
+                        alert('아이디 혹은 비밀번호가 일치하지 않습니다.');
+                    } else {
+                        alert(
+                            '알 수 없는 오류가 발생하였습니다. 개발팀에 문의 해주세요.'
+                        );
+                    }
+                    console.log(resMessage);
+                }
+            );
+        }
+    };
     return (
         <>
             <form className={classes.form} noValidate>
@@ -63,6 +122,7 @@ function Form() {
                     label='이메일'
                     name='email'
                     autoComplete='email'
+                    inputRef={userId}
                     autoFocus
                 />
                 <TextField
@@ -75,15 +135,14 @@ function Form() {
                     type='password'
                     id='password'
                     autoComplete='current-password'
+                    inputRef={userPassword}
                 />
                 {/* <FormControlLabel
                         control={<Checkbox value='remember' color='primary' />}
                         label='Remember me'
                     /> */}
                 <Button
-                    onClick={() => {
-                        alert('login process!');
-                    }}
+                    onClick={loginProcess}
                     fullWidth
                     variant='contained'
                     color='primary'
@@ -121,11 +180,11 @@ function Copyright() {
     );
 }
 
-export default function Login() {
+export default function Login<T>(props: T) {
     const classes = useStyles();
 
-    const formArray = [<Title />, <Form />];
-
+    const formArray = [<Title />, <Form props={props} />];
+    //form 애니메이션 처리
     const springs = useSprings(
         formArray.length,
         formArray.map((item) => {
@@ -144,7 +203,7 @@ export default function Login() {
             };
         })
     );
-
+    //copyright 애니메이션 처리
     const boxProps = useSpring({
         config: {
             duration: 400,
