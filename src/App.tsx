@@ -1,11 +1,7 @@
 import React from 'react';
-import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-    Redirect,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Redirect } from 'react-router-dom';
 import { Login, Profile } from 'components/pages';
+import { CommonRoute as Route } from 'components/parts/common';
 
 function App<T>(props: T) {
     return (

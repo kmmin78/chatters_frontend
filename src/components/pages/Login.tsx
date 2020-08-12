@@ -20,6 +20,7 @@ import authHeader from 'auth/authHeader';
 import AuthService from 'auth/authService';
 import axios from 'axios';
 
+//material-ui
 const useStyles = makeStyles((theme) => ({
     paper: {
         marginTop: theme.spacing(18),
@@ -48,7 +49,9 @@ function Title() {
                 <ChatIcon />
             </Avatar>
             <Typography component='h1' variant='h5'>
-                Chatters
+                <Link color='inherit' href='/'>
+                    Chatters
+                </Link>
             </Typography>
         </>
     );
@@ -58,8 +61,11 @@ function Form(props: any) {
     const userId = useRef<HTMLInputElement>(null);
     const userPassword = useRef<HTMLInputElement>(null);
     const classes = useStyles();
+
     //로그인
-    const loginProcess = () => {
+    const loginProcess = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
         if (userId.current !== null && userPassword.current !== null) {
             if (CommonUtil.isEmpty(userId.current.value)) {
                 alert('아이디를 입력해 주세요.');
@@ -69,9 +75,6 @@ function Form(props: any) {
                 alert('비밀번호를 입력해 주세요.');
                 return;
             }
-
-            // alert(`아이디 : ${userId.current.value}`);
-            // alert(`비밀번호 : ${userPassword.current.value}`);
 
             AuthService.login(
                 userId.current.value,
@@ -102,7 +105,7 @@ function Form(props: any) {
                         alert('아이디 혹은 비밀번호가 일치하지 않습니다.');
                     } else {
                         alert(
-                            '알 수 없는 오류가 발생하였습니다. 개발팀에 문의 해주세요.'
+                            '서버에 연결 되지 않았습니다. 개발팀에 문의 해주세요.'
                         );
                     }
                     console.log(resMessage);
@@ -112,7 +115,7 @@ function Form(props: any) {
     };
     return (
         <>
-            <form className={classes.form} noValidate>
+            <form className={classes.form} onSubmit={loginProcess} noValidate>
                 <TextField
                     variant='outlined'
                     margin='normal'
@@ -123,6 +126,7 @@ function Form(props: any) {
                     name='email'
                     autoComplete='email'
                     inputRef={userId}
+                    defaultValue='admin'
                     autoFocus
                 />
                 <TextField
@@ -134,6 +138,7 @@ function Form(props: any) {
                     label='패스워드'
                     type='password'
                     id='password'
+                    defaultValue='chatters1@#'
                     autoComplete='current-password'
                     inputRef={userPassword}
                 />
@@ -142,11 +147,11 @@ function Form(props: any) {
                         label='Remember me'
                     /> */}
                 <Button
-                    onClick={loginProcess}
                     fullWidth
                     variant='contained'
                     color='primary'
                     className={classes.submit}
+                    type='submit'
                 >
                     로그인
                 </Button>
@@ -180,10 +185,10 @@ function Copyright() {
     );
 }
 
-export default function Login<T>(props: T) {
+export default function Login(props: any) {
     const classes = useStyles();
 
-    const formArray = [<Title />, <Form props={props} />];
+    const formArray = [<Title />, <Form {...props} />];
     //form 애니메이션 처리
     const springs = useSprings(
         formArray.length,

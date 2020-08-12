@@ -1,6 +1,14 @@
 // import * as Constants from 'constants/constants';
 import axios from 'axios';
 
+type CurrentUserTypes = {
+    username: string | null;
+    memberName: string | null;
+    accessToken: string | null;
+    tokenType: string | null;
+    roles: string[] | null;
+};
+
 class AuthService {
     login(username: string, password: string) {
         const data = {
@@ -22,17 +30,23 @@ class AuthService {
         }
     }
 
-    getCurrentUser(): JSON {
+    getCurrentUser(): CurrentUserTypes {
         const userItem: string | null = localStorage.getItem('user');
         if (userItem === null) {
-            return JSON.parse('{}');
+            return {
+                username: null,
+                memberName: null,
+                accessToken: null,
+                tokenType: null,
+                roles: null,
+            };
         }
         return JSON.parse(userItem);
     }
 
     checkAuth<T>(props: any) {
         const currentUser = this.getCurrentUser();
-        if (!currentUser) {
+        if (!currentUser.accessToken) {
             if (props.history) {
                 props.history.push('/');
             }
