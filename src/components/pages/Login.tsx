@@ -13,19 +13,7 @@ import ChatIcon from '@material-ui/icons/Chat';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-
-function Copyright() {
-    return (
-        <Typography variant='body2' color='textSecondary' align='center'>
-            {'Copyright © '}
-            <Link color='inherit' href='/'>
-                mskim
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
+import { useSpring, useSprings, animated } from 'react-spring';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -47,58 +35,63 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function Login() {
+function Title() {
     const classes = useStyles();
-
     return (
-        <Container component='main' maxWidth='xs'>
-            <CssBaseline />
-            <div className={classes.paper}>
-                <Avatar className={classes.avatar}>
-                    <ChatIcon />
-                </Avatar>
-                <Typography component='h1' variant='h5'>
-                    Chatters
-                </Typography>
-                <form className={classes.form} noValidate>
-                    <TextField
-                        variant='outlined'
-                        margin='normal'
-                        required
-                        fullWidth
-                        id='email'
-                        label='이메일'
-                        name='email'
-                        autoComplete='email'
-                        autoFocus
-                    />
-                    <TextField
-                        variant='outlined'
-                        margin='normal'
-                        required
-                        fullWidth
-                        name='password'
-                        label='패스워드'
-                        type='password'
-                        id='password'
-                        autoComplete='current-password'
-                    />
-                    {/* <FormControlLabel
+        <>
+            <Avatar className={classes.avatar}>
+                <ChatIcon />
+            </Avatar>
+            <Typography component='h1' variant='h5'>
+                Chatters
+            </Typography>
+        </>
+    );
+}
+
+function Form() {
+    const classes = useStyles();
+    return (
+        <>
+            <form className={classes.form} noValidate>
+                <TextField
+                    variant='outlined'
+                    margin='normal'
+                    required
+                    fullWidth
+                    id='email'
+                    label='이메일'
+                    name='email'
+                    autoComplete='email'
+                    autoFocus
+                />
+                <TextField
+                    variant='outlined'
+                    margin='normal'
+                    required
+                    fullWidth
+                    name='password'
+                    label='패스워드'
+                    type='password'
+                    id='password'
+                    autoComplete='current-password'
+                />
+                {/* <FormControlLabel
                         control={<Checkbox value='remember' color='primary' />}
                         label='Remember me'
                     /> */}
-                    <Button
-                        onClick={() => {
-                            alert('login process!');
-                        }}
-                        fullWidth
-                        variant='contained'
-                        color='primary'
-                        className={classes.submit}
-                    >
-                        로그인
-                    </Button>
-                    {/* <Grid container>
+                <Button
+                    onClick={() => {
+                        alert('login process!');
+                    }}
+                    fullWidth
+                    variant='contained'
+                    color='primary'
+                    className={classes.submit}
+                >
+                    로그인
+                </Button>
+                {/* <Grid container>
                         <Grid item xs>
                             <Link href='#' variant='body2'>
                                 Forgot password?
@@ -110,11 +103,78 @@ export default function Login() {
                             </Link>
                         </Grid>
                     </Grid> */}
-                </form>
+            </form>
+        </>
+    );
+}
+
+function Copyright() {
+    return (
+        <Typography variant='body2' color='textSecondary' align='center'>
+            {'Copyright © '}
+            <Link color='inherit' href='/'>
+                mskim
+            </Link>{' '}
+            {new Date().getFullYear()}
+            {'.'}
+        </Typography>
+    );
+}
+
+export default function Login() {
+    const classes = useStyles();
+
+    const formArray = [<Title />, <Form />];
+
+    const springs = useSprings(
+        formArray.length,
+        formArray.map((item) => {
+            return {
+                config: {
+                    duration: 400,
+                },
+                to: {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    opacity: 1,
+                    transform: 'translate3d( 0, 0, 0)',
+                },
+                from: { opacity: 0, transform: 'translate3d( 0, 30px, 0)' },
+            };
+        })
+    );
+
+    const boxProps = useSpring({
+        config: {
+            duration: 400,
+        },
+        to: {
+            opacity: 1,
+            transform: 'translate3d( 0, 0, 0)',
+        },
+        from: { opacity: 0, transform: 'translate3d( 0, 30px, 0)' },
+    });
+
+    return (
+        <Container component='main' maxWidth='xs'>
+            <CssBaseline />
+            <div className={classes.paper}>
+                {springs.map((props, index) => (
+                    <animated.div
+                        style={props}
+                        key={index}
+                        children={formArray[index]}
+                    />
+                ))}
+                {/* <Title />
+                <Form /> */}
             </div>
-            <Box mt={8}>
-                <Copyright />
-            </Box>
+            <animated.div style={boxProps}>
+                <Box mt={8}>
+                    <Copyright />
+                </Box>
+            </animated.div>
         </Container>
     );
 }
