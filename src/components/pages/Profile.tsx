@@ -2,6 +2,7 @@ import React from 'react';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import AuthService from 'auth/authService';
+import axios from 'axios';
 
 //material-ui
 const useStyles = makeStyles((theme) => ({
@@ -33,10 +34,31 @@ export default function Profile<T>(props: T) {
 
     const currentUser = AuthService.getCurrentUser();
 
+    function testAjax() {
+        axios
+            .get('/test')
+            .then((data) => {
+                console.dir(data);
+            })
+            .catch((error) => {
+                console.dir(error);
+            });
+    }
+
     return (
         <>
             <div>로그인 성공!</div>
             <div>환영합니다, {currentUser.memberName}님!</div>
+            <div>TOKEN : {currentUser.accessToken}</div>
+            <Button
+                onClick={testAjax}
+                fullWidth
+                variant='contained'
+                color='secondary'
+                className={classes.submit}
+            >
+                api 테스트
+            </Button>
             <Button
                 onClick={logOutProcess}
                 fullWidth
