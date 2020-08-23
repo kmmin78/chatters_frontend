@@ -7,9 +7,8 @@ export default function authHeader() {
     }
     const user = JSON.parse(userItem);
     const accessToken: string = JSON.stringify(user.accessToken);
-
     if (user && accessToken) {
-        return { Authorization: 'Bearer ' + accessToken };
+        return { Authorization: `Bearer ${accessToken}` };
     } else {
         return {};
     }

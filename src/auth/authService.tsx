@@ -25,6 +25,7 @@ class AuthService {
 
     logout<T>(props: any) {
         localStorage.removeItem('user');
+        axios.defaults.headers.common['Authorization'] = null;
         if (props.history) {
             props.history.push('/');
         }
