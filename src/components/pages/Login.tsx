@@ -19,6 +19,7 @@ import * as Constants from 'constants/constants';
 import authHeader from 'auth/authHeader';
 import AuthService from 'auth/authService';
 import axios from 'axios';
+import { useHistory } from 'react-router-dom';
 
 //material-ui
 const useStyles = makeStyles((theme) => ({
@@ -61,6 +62,7 @@ function Form(props: any) {
     const userId = useRef<HTMLInputElement>(null);
     const userPassword = useRef<HTMLInputElement>(null);
     const classes = useStyles();
+    const history = useHistory();
 
     //로그인
     const loginProcess = (e: React.FormEvent<HTMLFormElement>) => {
@@ -87,7 +89,10 @@ function Form(props: any) {
                     axios.defaults.headers.common[
                         'Authorization'
                     ] = authorization;
-                    props.history.push('/profile');
+
+                    history.push('/profile');
+                    //props.history.push('/profile');
+                    console.log('login success');
                     console.dir(data);
                 },
                 (error) => {
@@ -101,7 +106,7 @@ function Form(props: any) {
                         error.response &&
                         error.response.status &&
                         error.response.status === 401
-                    ) {                        
+                    ) {
                         alert('아이디 혹은 비밀번호가 일치하지 않습니다.');
                     } else {
                         alert(

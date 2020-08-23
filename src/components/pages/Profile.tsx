@@ -3,6 +3,7 @@ import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import AuthService from 'auth/authService';
 import axios from 'axios';
+// import axios from 'utils/axios.modules';
 
 //material-ui
 const useStyles = makeStyles((theme) => ({
@@ -38,11 +39,35 @@ export default function Profile<T>(props: T) {
         axios
             .get('/test')
             .then((data) => {
+                if (data && data.data && data.data.JWT_RESULT) {
+                    alert(
+                        `토큰 오류가 발생했습니다. ( message : ${data.data.JWT_RESULT})`
+                    );
+                    //로그아웃
+                    logOutProcess();
+                }
                 console.dir(data);
             })
             .catch((error) => {
                 console.dir(error);
             });
+
+        // custom module로 했더니, accessToken을 제때 못가져옴..
+        // 페이지 새로고침해야 가져오니 이건 모듈이 언제 로드되는지 라이프사이클 확인 필요..
+        // 또, history를 모듈내에서 사용시도해봤으나 실패.. 이러면 logout이라는 공통로직도 못넣음 ;;
+        // 일단은 공통모듈화는 제쳐두고 개발 진행하자.
+        // axios('get', '/test')
+        //     .then((data: any) => {
+        //         if (data) {
+        //             console.log('api success');
+        //             console.dir(data);
+        //         } else {
+        //             AuthService.logout(props);
+        //         }
+        //     })
+        //     .catch((error: any) => {
+        //         console.dir(error);
+        //     });
     }
 
     return (
