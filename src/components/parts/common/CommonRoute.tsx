@@ -1,15 +1,18 @@
 import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
+import { Route, Redirect, RouteProps } from 'react-router-dom';
 import AuthService from 'auth/authService';
 
-export default function CommonRouteTypes({
-    component: Component,
-    ...rest
-}: {
+interface CommonRoute extends RouteProps {
     component: any;
-    exact?: any;
-    path: any;
-}) {
+    name: string;
+    pageName?: string;
+}
+
+const CommonRoute: React.FC<CommonRoute> = ({
+    component: Component,
+    name,
+    ...rest
+}) => {
     const currentUser = AuthService.getCurrentUser();
 
     return (
@@ -17,10 +20,7 @@ export default function CommonRouteTypes({
             <Route
                 {...rest}
                 render={(props) => {
-                    if (
-                        !currentUser.accessToken &&
-                        Component.name !== 'Login'
-                    ) {
+                    if (!currentUser.accessToken && name !== 'Login') {
                         // not logged in so redirect to login page with the return url
                         return (
                             <Redirect
@@ -31,7 +31,7 @@ export default function CommonRouteTypes({
                             />
                         );
                     }
-                    if (currentUser.accessToken && Component.name === 'Login') {
+                    if (currentUser.accessToken && name === 'Login') {
                         return (
                             <Redirect
                                 to={{
@@ -51,4 +51,6 @@ export default function CommonRouteTypes({
             />
         </>
     );
-}
+};
+
+export default React.memo(CommonRoute);

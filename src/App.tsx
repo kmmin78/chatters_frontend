@@ -8,8 +8,13 @@ function App<T>(props: T) {
         <>
             <Router>
                 <Switch>
-                    <Route exact path={['/']} component={Login}></Route>
-                    <Route path='/profile' component={Profile} />
+                    <Route
+                        exact
+                        path={['/']}
+                        component={Login}
+                        name='Login'
+                    ></Route>
+                    <Route path='/profile' component={Profile} name='Profile' />
                     <Redirect path='*' to='/' />
                 </Switch>
             </Router>
