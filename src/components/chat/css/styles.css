@@ -1,0 +1,14 @@
+.right {
+    justify-content: flex-end !important;
+}
+.left {
+    justify-content: flex-start !important;
+}
+
+.right-bubble {
+    background-color: rgb(161, 211, 235);
+}
+
+.left-bubble {
+    background-color: white;
+}

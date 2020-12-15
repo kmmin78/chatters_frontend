@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Redirect } from 'react-router-dom';
-import { Login, Profile } from 'components/pages';
+import { Login, Profile, Chatting } from 'components/pages';
 import { CommonRoute as Route } from 'components/parts/common';
 
 function App<T>(props: T) {
@@ -15,6 +15,11 @@ function App<T>(props: T) {
                         name='Login'
                     ></Route>
                     <Route path='/profile' component={Profile} name='Profile' />
+                    <Route
+                        path='/chatting'
+                        component={Chatting}
+                        name='Chatting'
+                    />
                     <Redirect path='*' to='/' />
                 </Switch>
             </Router>

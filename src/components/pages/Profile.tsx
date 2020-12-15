@@ -3,6 +3,7 @@ import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import AuthService from 'auth/authService';
 import axios from 'axios';
+import { RouteComponentProps } from 'react-router-dom';
 // import axios from 'utils/axios.modules';
 
 //material-ui
@@ -26,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function Profile<T>(props: T) {
+export default function Profile(props: RouteComponentProps) {
     const classes = useStyles();
 
     function logOutProcess() {
@@ -70,6 +71,10 @@ export default function Profile<T>(props: T) {
         //     });
     }
 
+    const goChattingPage = () => {
+        props.history.push('./chatting');
+    };
+
     return (
         <>
             <div>로그인 성공!</div>
@@ -83,6 +88,15 @@ export default function Profile<T>(props: T) {
                 className={classes.submit}
             >
                 api 테스트
+            </Button>
+            <Button
+                onClick={goChattingPage}
+                fullWidth
+                variant='contained'
+                color='secondary'
+                className={classes.submit}
+            >
+                채팅하기
             </Button>
             <Button
                 onClick={logOutProcess}
