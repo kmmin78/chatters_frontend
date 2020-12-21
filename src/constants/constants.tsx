@@ -1,4 +1,4 @@
-export const API_URL: string = 'http://localhost:8080';
+export const API_URL: string = `${window.location.protocol}//${window.location.hostname}:8080`;
 //export const API_URL: string = 'http://192.168.1.69:8080';
 export const API_ADMIN: string = '/api/admin';
 

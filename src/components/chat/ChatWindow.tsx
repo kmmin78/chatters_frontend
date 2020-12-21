@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { MutableRefObject, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
+//@ts-ignore
+import SockJsClient from 'react-stomp';
+import { API_URL } from 'constants/constants';
 import './css/styles.css';
 
 //material-ui
@@ -94,6 +97,19 @@ const ChatWindow = () => {
         </div>
     ));
 
+    let webSocket: { sendMessage: (arg0: string) => void };
+
+    const [connectState, setConnectState] = useState(false);
+    const [message, setMessage] = useState([]);
+
+    const onSendMessage = () => {
+        webSocket.sendMessage('/testSend');
+    };
+
+    const onMessageReceive = (msg: any) => {
+        console.log(msg);
+    };
+
     return (
         <>
             <div className={classes.container}>
@@ -105,11 +121,29 @@ const ChatWindow = () => {
                         className={classes.button}
                         variant='contained'
                         color='primary'
+                        onClick={onSendMessage}
                     >
                         Send
                     </Button>
                 </div>
             </div>
+
+            <SockJsClient
+                url={`${API_URL}/chatters`}
+                topics={[`/chat/topic/testRoom`]}
+                onMessage={onMessageReceive}
+                ref={(client: { sendMessage: (arg0: string) => void }) =>
+                    (webSocket = client)
+                }
+                onConnect={() => {
+                    setConnectState(true);
+                }}
+                onDisconnect={() => {
+                    setConnectState(false);
+                }}
+                debug={false}
+                style={[{ width: '100%', height: '100%' }]}
+            />
         </>
     );
 };
