@@ -131,7 +131,7 @@ function Form(props: any) {
                     name='email'
                     autoComplete='email'
                     inputRef={userId}
-                    defaultValue='admin'
+                    // defaultValue='admin'
                     autoFocus
                 />
                 <TextField
@@ -143,7 +143,7 @@ function Form(props: any) {
                     label='패스워드'
                     type='password'
                     id='password'
-                    defaultValue='chatters1@#'
+                    // defaultValue='chatters1@#'
                     autoComplete='current-password'
                     inputRef={userPassword}
                 />

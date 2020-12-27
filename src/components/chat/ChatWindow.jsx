@@ -1,19 +1,25 @@
-import React, { MutableRefObject, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
-//@ts-ignore
 import SockJsClient from 'react-stomp';
 import { API_URL } from 'constants/constants';
+import AuthService from 'auth/authService';
+import moment from 'moment';
 import './css/styles.css';
+
+const messageType = {
+    ENTER : 'ENTER',
+    MESSAGE : 'MESSAGE',
+}
 
 //material-ui
 const useStyles = makeStyles((theme) => ({
     container: {
         position: 'fixed',
         top: '10vh',
-        left: '25vw',
+        left: '15vw',
         height: '80vh',
-        width: '50vw',
+        width: '70vw',
         display: 'flex',
         flexDirection: 'column',
         // position: "fixed" // remove this so we can apply flex design
@@ -48,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         height: '80%',
         backgroundColor: '#F6F6F6',
+        overflow : 'auto',
     },
     footer: {
         width: '100%',
@@ -68,25 +75,12 @@ const useStyles = makeStyles((theme) => ({
 const ChatWindow = () => {
     const classes = useStyles();
 
-    const dummyData = [
-        {
-            message: '1: This should be in left',
-            direction: 'left',
-        },
-        {
-            message: '2: This should be in right',
-            direction: 'right',
-        },
-        {
-            message: '3: This should be in left again',
-            direction: 'left',
-        },
-        {
-            message: '4: This should be in right again',
-            direction: 'right',
-        },
-    ];
-    const chatBubbles = dummyData.map((obj, i) => (
+    const [connectState, setConnectState] = useState(false);
+    const [message, setMessage] = useState([]);
+    const inputRef = useRef();
+    const chatBodyRef = useRef();
+
+    const chatBubbles = message.map((obj, i) => (
         <div className={`${classes.bubbleContainer} ${obj.direction}`} key={i}>
             <div
                 key={i++}
@@ -97,31 +91,53 @@ const ChatWindow = () => {
         </div>
     ));
 
-    let webSocket: { sendMessage: (arg0: string) => void };
+    let webSocket;
 
-    const [connectState, setConnectState] = useState(false);
-    const [message, setMessage] = useState([]);
+    const onKeyPress = (event) => {
+        if(event.key === 'Enter') onSendMessage(inputRef.current.value, messageType.MESSAGE);
+    }
 
-    const onSendMessage = () => {
-        webSocket.sendMessage('/testSend');
+    const onSendMessage = (inputMessage, type) => {
+        if(inputMessage){   
+            const message = {
+                user : AuthService.getCurrentUser().username,
+                type,
+                message : inputMessage,
+                sendDate : moment().format('YYYY-MM-DD HH:mm:ss')
+            }
+            webSocket.sendMessage('/group/sendToAll', JSON.stringify(message));
+            inputRef.current.value = '';
+        }
     };
 
-    const onMessageReceive = (msg: any) => {
-        console.log(msg);
+    const onMessageReceive = (receive) => {
+        console.dir(receive);
+        setMessage((message) => [
+            ...message,
+            {
+                user : receive.user,
+                type : receive.type,
+                message : receive.message,
+                sendDate : receive.sendDate,
+                direction : AuthService.getCurrentUser().username === receive.user ? 'left' : 'right'
+            }
+        ]);
+
+        chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     };
 
     return (
         <>
             <div className={classes.container}>
                 <div className={classes.header}>Chat</div>
-                <div className={classes.body}>{chatBubbles}</div>
+                <div className={classes.body} ref={chatBodyRef}>{chatBubbles}</div>
                 <div className={classes.footer}>
-                    <input type='text' className={classes.input}></input>
+                    <input type='text' className={classes.input} onKeyPress={onKeyPress} ref={inputRef}></input>
                     <Button
                         className={classes.button}
                         variant='contained'
                         color='primary'
-                        onClick={onSendMessage}
+                        onClick={()=>{onSendMessage(inputRef.current.value, messageType.MESSAGE)}}
                     >
                         Send
                     </Button>
@@ -130,13 +146,15 @@ const ChatWindow = () => {
 
             <SockJsClient
                 url={`${API_URL}/chatters`}
-                topics={[`/chat/topic/testRoom`]}
+                topics={[`/topic/all`]}
                 onMessage={onMessageReceive}
-                ref={(client: { sendMessage: (arg0: string) => void }) =>
+                ref={(client) =>
                     (webSocket = client)
                 }
                 onConnect={() => {
                     setConnectState(true);
+                    //입장 구현 필요.. https://github.com/lahsivjar/react-stomp/blob/master/API.md 참조
+                    // onSendMessage('입장', messageType.ENTER);
                 }}
                 onDisconnect={() => {
                     setConnectState(false);
