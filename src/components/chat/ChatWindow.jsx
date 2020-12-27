@@ -9,6 +9,7 @@ import './css/styles.css';
 
 const messageType = {
     ENTER : 'ENTER',
+    EXIT : 'EXIT',
     MESSAGE : 'MESSAGE',
 }
 
@@ -72,11 +73,12 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const ChatWindow = () => {
+const ChatWindow = (props) => {
     const classes = useStyles();
 
     const [connectState, setConnectState] = useState(false);
     const [message, setMessage] = useState([]);
+    const [webSocket, setWebSocket] = useState();
     const inputRef = useRef();
     const chatBodyRef = useRef();
 
@@ -90,8 +92,6 @@ const ChatWindow = () => {
             </div>
         </div>
     ));
-
-    let webSocket;
 
     const onKeyPress = (event) => {
         if(event.key === 'Enter') onSendMessage(inputRef.current.value, messageType.MESSAGE);
@@ -126,6 +126,12 @@ const ChatWindow = () => {
         chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     };
 
+    const onDisconnect = () => {
+        onSendMessage('퇴장', messageType.EXIT);
+        webSocket.disconnect();
+        props.history.push('/');
+    }
+
     return (
         <>
             <div className={classes.container}>
@@ -141,6 +147,7 @@ const ChatWindow = () => {
                     >
                         Send
                     </Button>
+                    <Button onClick={onDisconnect}>Disconnect</Button>
                 </div>
             </div>
 
@@ -149,12 +156,14 @@ const ChatWindow = () => {
                 topics={[`/topic/all`]}
                 onMessage={onMessageReceive}
                 ref={(client) =>
-                    (webSocket = client)
+                    (setWebSocket(client))
                 }
                 onConnect={() => {
                     setConnectState(true);
-                    //입장 구현 필요.. https://github.com/lahsivjar/react-stomp/blob/master/API.md 참조
-                    // onSendMessage('입장', messageType.ENTER);
+                    //https://github.com/lahsivjar/react-stomp/blob/master/API.md 참조
+                    //흠.. 클라이언트 방식으로 구현은 했는데.. 
+                    //클라이언트 말고 백엔드 서버에서 onConnect onDisconnect 구현하는 방법이 있나?
+                    onSendMessage('입장', messageType.ENTER);
                 }}
                 onDisconnect={() => {
                     setConnectState(false);

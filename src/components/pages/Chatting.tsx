@@ -29,7 +29,7 @@ import { ChatWindow } from 'components/chat';
 export default function Chatting(props: RouteComponentProps) {
     return (
         <>
-            <ChatWindow />
+            <ChatWindow {...props} />
         </>
     );
 }
