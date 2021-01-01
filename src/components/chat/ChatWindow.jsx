@@ -5,13 +5,14 @@ import SockJsClient from 'react-stomp';
 import { API_URL } from 'constants/constants';
 import AuthService from 'auth/authService';
 import moment from 'moment';
+import { SendMessage } from './utils/common';
 import './css/styles.css';
 
-const messageType = {
-    ENTER : 'ENTER',
-    EXIT : 'EXIT',
-    MESSAGE : 'MESSAGE',
-}
+const MessageType = {
+    ENTER: 'ENTER',
+    EXIT: 'EXIT',
+    MESSAGE: 'MESSAGE',
+};
 
 //material-ui
 const useStyles = makeStyles((theme) => ({
@@ -55,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         height: '80%',
         backgroundColor: '#F6F6F6',
-        overflow : 'auto',
+        overflow: 'auto',
     },
     footer: {
         width: '100%',
@@ -68,8 +69,17 @@ const useStyles = makeStyles((theme) => ({
         border: '1.5px solid #D5D5D5',
     },
     button: { width: '40%' },
+    name: {
+        fontSize: '0.7rem',
+        lineHeight: '50px',
+        margin: '0 3px 0 10px',
+    },
     message: {
         fontSize: '0.8rem',
+    },
+    system: {
+        margin: '1.5vh',
+        fontWeight: 'bold',
     },
 }));
 
@@ -82,72 +92,95 @@ const ChatWindow = (props) => {
     const inputRef = useRef();
     const chatBodyRef = useRef();
 
-    const chatBubbles = message.map((obj, i) => (
-        <div className={`${classes.bubbleContainer} ${obj.direction}`} key={i}>
+    const chatBubbles = message.map((obj, i) => {
+        return obj.type === 'MESSAGE' ? (
             <div
-                key={i++}
-                className={`${classes.bubble} ${obj.direction}-bubble`}
+                className={`${classes.bubbleContainer} ${obj.direction}`}
+                key={i}
             >
-                <div className={classes.message}>{obj.message}</div>
+                {obj.direction === 'left' ? (
+                    <div className={classes.name}>{obj.name}</div>
+                ) : null}
+
+                <div
+                    key={i++}
+                    className={`${classes.bubble} ${obj.direction}-bubble`}
+                >
+                    <div className={classes.message}>{obj.message}</div>
+                </div>
             </div>
-        </div>
-    ));
+        ) : (
+            <div key={i++} className={classes.system}>
+                {obj.message}
+            </div>
+        );
+    });
 
     const onKeyPress = (event) => {
-        if(event.key === 'Enter') onSendMessage(inputRef.current.value, messageType.MESSAGE);
-    }
+        if (event.key === 'Enter')
+            onSendMessage(inputRef.current.value, MessageType.MESSAGE);
+    };
 
     const onSendMessage = (inputMessage, type) => {
-        if(inputMessage){   
-            const message = {
-                user : AuthService.getCurrentUser().username,
-                type,
-                message : inputMessage,
-                sendDate : moment().format('YYYY-MM-DD HH:mm:ss')
-            }
-            webSocket.sendMessage('/group/sendToAll', JSON.stringify(message));
-            inputRef.current.value = '';
-        }
+        SendMessage(webSocket, inputMessage, type, '/group/all/send');
+        inputRef.current.value = '';
     };
 
     const onMessageReceive = (receive) => {
-        console.dir(receive);
+        // console.dir(receive);
         setMessage((message) => [
             ...message,
             {
-                user : receive.user,
-                type : receive.type,
-                message : receive.message,
-                sendDate : receive.sendDate,
-                direction : AuthService.getCurrentUser().username === receive.user ? 'left' : 'right'
-            }
+                user: receive.username,
+                name: receive.memberName,
+                type: receive.type,
+                message: receive.message,
+                sendDate: receive.sendDate,
+                direction:
+                    AuthService.getCurrentUser().username === receive.username
+                        ? 'right'
+                        : 'left',
+            },
         ]);
 
         chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     };
 
     const onDisconnect = () => {
-        onSendMessage('퇴장', messageType.EXIT);
+        // onSendMessage('퇴장', MessageType.EXIT);
+        SendMessage(webSocket, '퇴장', MessageType.EXIT, '/group/all/exit');
         webSocket.disconnect();
         props.history.push('/');
-    }
+    };
 
     return (
         <>
             <div className={classes.container}>
                 <div className={classes.header}>Chat</div>
-                <div className={classes.body} ref={chatBodyRef}>{chatBubbles}</div>
+                <div className={classes.body} ref={chatBodyRef}>
+                    {chatBubbles}
+                </div>
                 <div className={classes.footer}>
-                    <input type='text' className={classes.input} onKeyPress={onKeyPress} ref={inputRef}></input>
+                    <input
+                        type='text'
+                        className={classes.input}
+                        onKeyPress={onKeyPress}
+                        ref={inputRef}
+                    ></input>
                     <Button
                         className={classes.button}
                         variant='contained'
                         color='primary'
-                        onClick={()=>{onSendMessage(inputRef.current.value, messageType.MESSAGE)}}
+                        onClick={() => {
+                            onSendMessage(
+                                inputRef.current.value,
+                                MessageType.MESSAGE
+                            );
+                        }}
                     >
                         Send
                     </Button>
-                    <Button onClick={onDisconnect}>Disconnect</Button>
+                    <Button onClick={onDisconnect}>연결끊기</Button>
                 </div>
             </div>
 
@@ -155,15 +188,17 @@ const ChatWindow = (props) => {
                 url={`${API_URL}/chatters`}
                 topics={[`/topic/all`]}
                 onMessage={onMessageReceive}
-                ref={(client) =>
-                    (setWebSocket(client))
-                }
+                ref={(client) => setWebSocket(client)}
                 onConnect={() => {
                     setConnectState(true);
                     //https://github.com/lahsivjar/react-stomp/blob/master/API.md 참조
-                    //흠.. 클라이언트 방식으로 구현은 했는데.. 
-                    //클라이언트 말고 백엔드 서버에서 onConnect onDisconnect 구현하는 방법이 있나?
-                    onSendMessage('입장', messageType.ENTER);
+                    // onSendMessage('입장', MessageType.ENTER);
+                    SendMessage(
+                        webSocket,
+                        '입장',
+                        MessageType.ENTER,
+                        '/group/all/enter'
+                    );
                 }}
                 onDisconnect={() => {
                     setConnectState(false);
