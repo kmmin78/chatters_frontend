@@ -6,6 +6,7 @@ import { API_URL } from 'constants/constants';
 import AuthService from 'auth/authService';
 import moment from 'moment';
 import { SendMessage } from './utils/common';
+import AuthHeader from 'auth/authHeader';
 import './css/styles.css';
 
 const MessageType = {
@@ -77,6 +78,12 @@ const useStyles = makeStyles((theme) => ({
     message: {
         fontSize: '0.8rem',
     },
+    time: {
+        display: 'inline-block',
+        position: 'relative',
+        top: '20px',
+        fontSize: '0.7rem',
+    },
     system: {
         margin: '1.5vh',
         fontWeight: 'bold',
@@ -93,6 +100,11 @@ const ChatWindow = (props) => {
     const chatBodyRef = useRef();
 
     const chatBubbles = message.map((obj, i) => {
+        const time = moment(obj.sendDate).format('hh:mm');
+        let nextTime;
+        if (message[i + 1]) {
+            nextTime = moment(message[i + 1].sendDate).format('hh:mm');
+        }
         return obj.type === 'MESSAGE' ? (
             <div
                 className={`${classes.bubbleContainer} ${obj.direction}`}
@@ -101,13 +113,22 @@ const ChatWindow = (props) => {
                 {obj.direction === 'left' ? (
                     <div className={classes.name}>{obj.name}</div>
                 ) : null}
-
+                {obj.direction === 'right' && time !== nextTime ? (
+                    <div>
+                        <span className={classes.time}>{time}</span>
+                    </div>
+                ) : null}
                 <div
                     key={i++}
                     className={`${classes.bubble} ${obj.direction}-bubble`}
                 >
                     <div className={classes.message}>{obj.message}</div>
                 </div>
+                {obj.direction === 'left' && time !== nextTime ? (
+                    <div>
+                        <span className={classes.time}>{time}</span>
+                    </div>
+                ) : null}
             </div>
         ) : (
             <div key={i++} className={classes.system}>
@@ -187,6 +208,8 @@ const ChatWindow = (props) => {
             <SockJsClient
                 url={`${API_URL}/chatters`}
                 topics={[`/topic/all`]}
+                headers={AuthHeader()}
+                subscribeHeaders={AuthHeader()}
                 onMessage={onMessageReceive}
                 ref={(client) => setWebSocket(client)}
                 onConnect={() => {

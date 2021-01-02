@@ -1,4 +1,5 @@
 import AuthService from 'auth/authService';
+import AuthHeader from 'auth/authHeader';
 import moment from 'moment';
 // , webSocket, inputMessage, type, url
 export const SendMessage = (...args) => {
@@ -9,15 +10,7 @@ export const SendMessage = (...args) => {
     if (!type) return console.log(`SendMessage : type 없음`);
     if (!url) return console.log(`SendMessage : url 없음`);
     if (inputMessage) {
-        const {
-            username,
-            memberName,
-            accessToken,
-        } = AuthService.getCurrentUser();
-
-        const header = {
-            accessToken,
-        };
+        const { username, memberName } = AuthService.getCurrentUser();
 
         const message = {
             username: username,
@@ -29,7 +22,7 @@ export const SendMessage = (...args) => {
         webSocket.sendMessage(
             url,
             JSON.stringify(message),
-            header //header
+            AuthHeader() //header
         );
     }
 };
