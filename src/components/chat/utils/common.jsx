@@ -9,7 +9,16 @@ export const SendMessage = (...args) => {
     if (!type) return console.log(`SendMessage : type 없음`);
     if (!url) return console.log(`SendMessage : url 없음`);
     if (inputMessage) {
-        const { username, memberName } = AuthService.getCurrentUser();
+        const {
+            username,
+            memberName,
+            accessToken,
+        } = AuthService.getCurrentUser();
+
+        const header = {
+            accessToken,
+        };
+
         const message = {
             username: username,
             memberName: memberName,
@@ -17,6 +26,10 @@ export const SendMessage = (...args) => {
             message: inputMessage,
             sendDate: moment().format('YYYY-MM-DD HH:mm:ss'),
         };
-        webSocket.sendMessage(url, JSON.stringify(message));
+        webSocket.sendMessage(
+            url,
+            JSON.stringify(message),
+            header //header
+        );
     }
 };
