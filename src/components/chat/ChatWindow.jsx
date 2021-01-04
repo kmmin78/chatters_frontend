@@ -201,7 +201,7 @@ const ChatWindow = (props) => {
                     >
                         Send
                     </Button>
-                    <Button onClick={onDisconnect}>연결끊기</Button>
+                    {/* <Button onClick={onDisconnect}>연결끊기</Button> */}
                 </div>
             </div>
 
@@ -225,6 +225,10 @@ const ChatWindow = (props) => {
                 }}
                 onDisconnect={() => {
                     setConnectState(false);
+                }}
+                onConnectFailure={(res) => {
+                    alert('웹소켓 연결에 실패하였습니다.');
+                    console.log(res);
                 }}
                 debug={false}
                 style={[{ width: '100%', height: '100%' }]}
