@@ -7,6 +7,7 @@ import AuthService from 'auth/authService';
 import moment from 'moment';
 import { SendMessage } from './utils/common';
 import AuthHeader from 'auth/authHeader';
+import qs from 'query-string';
 import './css/styles.css';
 
 const MessageType = {
@@ -92,6 +93,14 @@ const useStyles = makeStyles((theme) => ({
 
 const ChatWindow = (props) => {
     const classes = useStyles();
+    const { roomId } = qs.parse(props.location.search);
+    const { username, memberName } = AuthService.getCurrentUser();
+    const header = {
+        roomId,
+        username,
+        memberName,
+        ...AuthHeader(),
+    };
 
     const [connectState, setConnectState] = useState(false);
     const [message, setMessage] = useState([]);
@@ -143,7 +152,7 @@ const ChatWindow = (props) => {
     };
 
     const onSendMessage = (inputMessage, type) => {
-        SendMessage(webSocket, inputMessage, type, '/group/all/send');
+        SendMessage(webSocket, inputMessage, type, '/topic/send', roomId);
         inputRef.current.value = '';
     };
 
@@ -169,7 +178,7 @@ const ChatWindow = (props) => {
 
     const onDisconnect = () => {
         // onSendMessage('퇴장', MessageType.EXIT);
-        SendMessage(webSocket, '퇴장', MessageType.EXIT, '/group/all/exit');
+        SendMessage(webSocket, '퇴장', MessageType.EXIT, '/topic/all/exit');
         webSocket.disconnect();
         props.history.push('/');
     };
@@ -207,9 +216,9 @@ const ChatWindow = (props) => {
 
             <SockJsClient
                 url={`${API_URL}/chatters`}
-                topics={[`/topic/all`]}
-                headers={AuthHeader()}
-                subscribeHeaders={AuthHeader()}
+                topics={[`/topic/${roomId}`]}
+                headers={header}
+                subscribeHeaders={header}
                 onMessage={onMessageReceive}
                 ref={(client) => setWebSocket(client)}
                 onConnect={() => {
@@ -220,15 +229,19 @@ const ChatWindow = (props) => {
                         webSocket,
                         '입장',
                         MessageType.ENTER,
-                        '/group/all/enter'
+                        '/topic/all/enter',
+                        'all'
                     );
                 }}
                 onDisconnect={() => {
                     setConnectState(false);
+                    alert('웹소켓 연결이 해제되었습니다.\n다시 접속해주세요.');
+                    props.history.push('/');
                 }}
                 onConnectFailure={(res) => {
-                    alert('웹소켓 연결에 실패하였습니다.');
                     console.log(res);
+                    alert('웹소켓 연결에 실패하였습니다.\n다시 접속해주세요.');
+                    props.history.push('/');
                 }}
                 debug={false}
                 style={[{ width: '100%', height: '100%' }]}

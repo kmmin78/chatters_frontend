@@ -72,7 +72,17 @@ export default function Profile(props: RouteComponentProps) {
     }
 
     const goChattingPage = () => {
-        props.history.push('./chatting');
+        const roomId = 'all';
+        axios
+            .get(`/enter?roomId=${roomId}`)
+            .then((data) => {
+                if (data.data === 'OK') {
+                    props.history.push(`./chatting?roomId=${roomId}`);
+                }
+            })
+            .catch((error) => {
+                console.dir(error);
+            });
     };
 
     return (
