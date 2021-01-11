@@ -96,7 +96,7 @@ const ChatWindow = (props) => {
     const { roomId } = qs.parse(props.location.search);
     const { username, memberName } = AuthService.getCurrentUser();
     const header = {
-        roomId,
+        // roomId,
         username,
         memberName,
         ...AuthHeader(),
@@ -157,7 +157,7 @@ const ChatWindow = (props) => {
     };
 
     const onMessageReceive = (receive) => {
-        // console.dir(receive);
+        console.dir(receive);
         setMessage((message) => [
             ...message,
             {
@@ -174,13 +174,6 @@ const ChatWindow = (props) => {
         ]);
 
         chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
-    };
-
-    const onDisconnect = () => {
-        // onSendMessage('퇴장', MessageType.EXIT);
-        SendMessage(webSocket, '퇴장', MessageType.EXIT, '/topic/all/exit');
-        webSocket.disconnect();
-        props.history.push('/');
     };
 
     return (
@@ -224,14 +217,6 @@ const ChatWindow = (props) => {
                 onConnect={() => {
                     setConnectState(true);
                     //https://github.com/lahsivjar/react-stomp/blob/master/API.md 참조
-                    // onSendMessage('입장', MessageType.ENTER);
-                    SendMessage(
-                        webSocket,
-                        '입장',
-                        MessageType.ENTER,
-                        '/topic/all/enter',
-                        'all'
-                    );
                 }}
                 onDisconnect={() => {
                     setConnectState(false);
