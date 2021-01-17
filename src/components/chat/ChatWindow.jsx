@@ -167,7 +167,8 @@ const ChatWindow = (props) => {
                         </div>
                         <div className={classes.innerBlockRight}>
                             <div className={classes.rightTop}>
-                                {obj.user !== prevUser ? (
+                                {obj.user !== prevUser ||
+                                obj.type !== prevType ? (
                                     <div className={classes.name}>
                                         {obj.name}
                                     </div>
