@@ -12,3 +12,11 @@
 .left-bubble {
   background-color: #f7ea6e;
 }
+
+.left-block {
+  display: flex;
+}
+
+.right-block {
+  display: flex;
+}

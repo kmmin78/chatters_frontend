@@ -2,10 +2,12 @@ import axios, { /*AxiosRequestConfig,*/ Method } from 'axios';
 import * as Constants from 'constants/constants';
 import authHeader from 'auth/authHeader';
 
-const axios_instance = axios.create({
-    baseURL: Constants.API_URL,
-    headers: { Authorization: authHeader().Authorization },
-});
+// const axios_instance = axios.create({
+//     baseURL: Constants.API_URL,
+//     headers: { Authorization: authHeader().Authorization }, // 이거 미리 생성해서 그런듯...?
+// });
+
+const axios_instance = axios.create();
 
 const custom_axios = (method: Method, url: string, data?: any): any => {
     const config =
@@ -17,7 +19,11 @@ const custom_axios = (method: Method, url: string, data?: any): any => {
               }
             : { method, url, data };
 
-    return axios_instance(config).then((data) => {
+    return axios_instance({
+        ...config,
+        baseURL: Constants.API_URL,
+        headers: { Authorization: authHeader().Authorization },
+    }).then((data) => {
         if (data && data.data && data.data.JWT_RESULT) {
             const result_code = data.data.JWT_RESULT;
             switch (result_code) {
