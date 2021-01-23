@@ -55,21 +55,23 @@ const CommonRoute = ({ component: Component, name, ...rest }) => {
                     return (
                         <>
                             <Component {...props} {...rest} />
-                            <SockJsClient
-                                url={`${API_URL}/ccu`}
-                                topics={[`/topic/ccu`]}
-                                headers={header}
-                                subscribeHeaders={header}
-                                onMessage={onMessageReceive}
-                                ref={(client) => setWebSocket(client)}
-                                onConnect={() => {}}
-                                onDisconnect={() => {}}
-                                onConnectFailure={(res) => {
-                                    console.log(res);
-                                }}
-                                debug={false}
-                                style={[{ width: '100%', height: '100%' }]}
-                            />
+                            {name === 'Login' ? null : (
+                                <SockJsClient
+                                    url={`${API_URL}/ccu`}
+                                    topics={[`/topic/ccu`]}
+                                    headers={header}
+                                    subscribeHeaders={header}
+                                    onMessage={onMessageReceive}
+                                    ref={(client) => setWebSocket(client)}
+                                    onConnect={() => {}}
+                                    onDisconnect={() => {}}
+                                    onConnectFailure={(res) => {
+                                        console.log(res);
+                                    }}
+                                    debug={false}
+                                    style={[{ width: '100%', height: '100%' }]}
+                                />
+                            )}
                         </>
                     );
                 }}

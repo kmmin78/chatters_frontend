@@ -133,7 +133,7 @@ const ChatWindow = (props) => {
         ...AuthHeader(),
     };
 
-    const [connectState, setConnectState] = useState(false);
+    // const [connectState, setConnectState] = useState(false);
     const [message, setMessage] = useState([]);
     const [userCount, setUserCount] = useState(0);
     const [webSocket, setWebSocket] = useState();
@@ -313,11 +313,11 @@ const ChatWindow = (props) => {
                 onMessage={onMessageReceive}
                 ref={(client) => setWebSocket(client)}
                 onConnect={() => {
-                    setConnectState(true);
+                    // setConnectState(true);
                     //https://github.com/lahsivjar/react-stomp/blob/master/API.md 참조
                 }}
                 onDisconnect={() => {
-                    setConnectState(false);
+                    // setConnectState(false);
                     // alert('웹소켓 연결이 해제되었습니다.\n다시 접속해주세요.');
                     props.history.push('/');
                 }}
