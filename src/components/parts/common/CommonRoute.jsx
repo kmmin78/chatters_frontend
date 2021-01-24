@@ -16,15 +16,24 @@ const CommonRoute = ({ component: Component, name, ...rest }) => {
 
     const [webSocket, setWebSocket] = useState();
 
-    const onSendMessage = (inputMessage, type) => {
-        // SendMessage(webSocket, inputMessage, type, '/topic/send', roomId);
+    // const onSendMessage = (inputMessage, type) => {
+    //     // SendMessage(webSocket, inputMessage, type, '/topic/send', roomId);
+    // };
+
+    const onMessageReceive = (receive) => {
+        // console.log(receive.jwt);
+        // console.log(currentUser.accessToken);
+        //토큰이 다르면 강제 로그아웃
+        if (receive.jwt !== currentUser.accessToken) {
+            alert('중복로그인이 감지되었습니다.\n로그아웃합니다.');
+            AuthService.logout();
+        }
     };
 
-    const onMessageReceive = (receive) => {};
+    // const onDisconnect = () => {
+    //     webSocket.disconnect();
+    // };
 
-    const onDisconnect = () => {
-        webSocket.disconnect();
-    };
     return (
         <>
             <Route
@@ -58,15 +67,26 @@ const CommonRoute = ({ component: Component, name, ...rest }) => {
                             {name === 'Login' ? null : (
                                 <SockJsClient
                                     url={`${API_URL}/ccu`}
-                                    topics={[`/topic/ccu`]}
+                                    topics={[
+                                        `/topic/ccu/${currentUser.username}`,
+                                    ]}
                                     headers={header}
                                     subscribeHeaders={header}
                                     onMessage={onMessageReceive}
                                     ref={(client) => setWebSocket(client)}
                                     onConnect={() => {}}
-                                    onDisconnect={() => {}}
+                                    onDisconnect={() => {
+                                        // 로그인 감지 웹소켓은 전역에서 처리해야될 것 같다. 화면 이동할때마다 재연결/해제 함;;;
+                                        // alert(
+                                        //     '서버와의 연결이 해제되었습니다.\n다시 로그인 해주세요.'
+                                        // );
+                                        // AuthService.logout();
+                                    }}
                                     onConnectFailure={(res) => {
-                                        console.log(res);
+                                        // alert(
+                                        //     '서버와의 연결에 실패하였습니다.\n다시 로그인 해주세요.'
+                                        // );
+                                        // AuthService.logout();
                                     }}
                                     debug={false}
                                     style={[{ width: '100%', height: '100%' }]}

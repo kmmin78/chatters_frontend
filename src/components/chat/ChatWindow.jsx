@@ -324,7 +324,7 @@ const ChatWindow = (props) => {
                 onConnectFailure={(res) => {
                     console.log(res);
                     alert('웹소켓 연결에 실패하였습니다.\n다시 접속해주세요.');
-                    props.history.push('/');
+                    AuthService.logout();
                 }}
                 debug={false}
                 style={[{ width: '100%', height: '100%' }]}
