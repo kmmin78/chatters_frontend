@@ -91,6 +91,12 @@ const useStyles = makeStyles((theme) => ({
     message: {
         fontSize: '0.8rem',
     },
+    firstTime: {
+        display: 'inline-block',
+        position: 'relative',
+        top: '37px',
+        fontSize: '0.7rem',
+    },
     time: {
         display: 'inline-block',
         position: 'relative',
@@ -187,7 +193,14 @@ const ChatWindow = (props) => {
                         </div>
                         {time !== nextTime || obj.user !== nextUser ? (
                             <div>
-                                <span className={classes.time}>{time}</span>
+                                {obj.user !== prevUser ||
+                                obj.type !== prevType ? (
+                                    <span className={classes.firstTime}>
+                                        {time}
+                                    </span>
+                                ) : (
+                                    <span className={classes.time}>{time}</span>
+                                )}
                             </div>
                         ) : null}
                     </div>
