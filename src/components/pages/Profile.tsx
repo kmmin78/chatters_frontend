@@ -31,7 +31,7 @@ export default function Profile(props: RouteComponentProps) {
     const classes = useStyles();
 
     function logOutProcess() {
-        AuthService.logout(props);
+        AuthService.logout(null);
     }
 
     // const currentUser = AuthService.getCurrentUser();
